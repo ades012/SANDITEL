@@ -17,3 +17,9 @@ variable "db_username" {
   type = string
   sensitive = true
 }
+variable "db_name" {
+  description = "Database name for RDS Postgre"
+  default     = "sanditeldb"
+  sensitive = true
+  type = string
+}

@@ -1,0 +1,92 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  # Region sesuai dengan variables.tf lu (Jakarta)
+  AWS_DEFAULT_REGION: "ap-southeast-3"
+  CLUSTER_NAME: "sanditel-eks"
+
+# ==========================================
+# TEMPLATE 1: BUILD & PUSH KE AWS ECR
+# ==========================================
+.build_to_ecr:
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  stage: build
+  before_script:
+    - apk add --no-cache aws-cli
+    # Otentikasi ECR dinamis. Nggak perlu pusing mikirin password expired!
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URL
+  script:
+    - docker build -t "$ECR_URL:$CI_COMMIT_SHORT_SHA" $APP_DIR
+    - docker push "$ECR_URL:$CI_COMMIT_SHORT_SHA"
+    # (Opsional) Bikin tag 'latest' juga biar lu gampang kalau mau pull manual di lokal
+    - docker tag "$ECR_URL:$CI_COMMIT_SHORT_SHA" "$ECR_URL:latest"
+    - docker push "$ECR_URL:latest"
+
+# ==========================================
+# TEMPLATE 2: DEPLOY KE AWS EKS
+# ==========================================
+.deploy_to_eks:
+  # Pake image resmi AWS biar aws-cli udah terinstall dari sononya
+  image: amazon/aws-cli:latest 
+  stage: deploy
+  before_script:
+    # Install kubectl (Versi 1.29 sesuai EKS lu)
+    - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/
+    # Generate Kubeconfig OTOMATIS pake IAM credential. Nggak perlu copas base64 lagi!
+    - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
+  script:
+    # Update image di Pod Kubernetes
+    - kubectl -n $NAMESPACE set image deployment/$DEPLOY_NAME $DEPLOY_NAME="$ECR_URL:$CI_COMMIT_SHORT_SHA"
+    # Tungguin rollout-nya kelar biar ketahuan kalau error
+    - kubectl -n $NAMESPACE rollout status deployment/$DEPLOY_NAME
+
+# ==========================================
+# JOB EKSEKUSI: BACKEND GOLANG
+# ==========================================
+build-backend:
+  extends: .build_to_ecr
+  variables:
+    APP_DIR: "./backend" # Asumsi folder aplikasi golang lu
+    ECR_URL: $ECR_BACKEND_URL # Masukin URL ECR backend dari outputs.tf ke GitLab Variables
+  only:
+    changes:
+      - backend/**/*
+
+deploy-backend:
+  extends: .deploy_to_eks
+  needs: [build-backend]
+  variables:
+    NAMESPACE: "sanditel" 
+    DEPLOY_NAME: "backend-api"
+    ECR_URL: $ECR_BACKEND_URL
+  only:
+    changes:
+      - backend/**/*
+
+# ==========================================
+# JOB EKSEKUSI: FRONTEND NEXT.JS
+# ==========================================
+build-frontend:
+  extends: .build_to_ecr
+  variables:
+    APP_DIR: "./frontend" # Asumsi folder aplikasi Next.js lu
+    ECR_URL: $ECR_FRONTEND_URL # Masukin URL ECR frontend dari outputs.tf ke GitLab Variables
+  only:
+    changes:
+      - frontend/**/*
+
+deploy-frontend:
+  extends: .deploy_to_eks
+  needs: [build-frontend]
+  variables:
+    NAMESPACE: "sanditel"
+    DEPLOY_NAME: "frontend-web"
+    ECR_URL: $ECR_FRONTEND_URL
+  only:
+    changes:
+      - frontend/**/*

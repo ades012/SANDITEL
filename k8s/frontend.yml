@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-web
+  namespace: sanditel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-web
+  template:
+    metadata:
+      labels:
+        app: frontend-web
+    spec:
+      containers:
+      - name: frontend-web
+        image: ${ECR_FRONTEND_URL}:latest
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-web-svc
+  namespace: sanditel
+spec:
+  type: LoadBalancer # Biar dikasih IP Publik/DNS sama AWS
+  selector:
+    app: frontend-web
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000

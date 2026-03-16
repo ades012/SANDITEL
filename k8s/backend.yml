@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend-api
-        image: ${ECR_BACKEND_URL}:latest # Nanti di-update otomatis sama CI
+        image: ${ECR_BACKEND_URL}:${CI_COMMIT_SHORT_SHA}
         ports:
         - containerPort: 8080
 ---

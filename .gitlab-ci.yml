@@ -33,13 +33,17 @@ variables:
 # ==========================================
 .deploy_to_eks:
   # Pake image resmi AWS biar aws-cli udah terinstall dari sononya
-  image: amazon/aws-cli:latest 
+  image: python:3.11-slim
   stage: deploy
   before_script:
-    # Install kubectl (Versi 1.29 sesuai EKS lu)
+    # 1. Update dan install tools dasar (curl buat download, gettext buat envsubst)
+    - apt-get update && apt-get install -y curl gettext
+    # 2. Install AWS CLI lewat PIP (Biar gak bentrok sama CPU lawas)
+    - pip install awscli
+    # 3. Download kubectl
     - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
     - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/
-    # Generate Kubeconfig OTOMATIS pake IAM credential. Nggak perlu copas base64 lagi!
+    # 4. Konekin ke EKS
     - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name $CLUSTER_NAME
   script:
     # Update image di Pod Kubernetes

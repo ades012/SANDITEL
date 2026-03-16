@@ -6,6 +6,8 @@ variables:
   # Region sesuai dengan variables.tf lu (Jakarta)
   AWS_DEFAULT_REGION: "ap-southeast-1"
   CLUSTER_NAME: "sanditel-eks"
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
 
 # ==========================================
 # TEMPLATE 1: BUILD & PUSH KE AWS ECR

@@ -4,6 +4,7 @@ module "ecr_backend-api" {
 
   repository_name = "${var.project_name}-backend-api"
   repository_type = "private"
+  repository_force_delete = true
 
   repository_image_scan_on_push = true
 
@@ -49,6 +50,7 @@ module "ecr_frontend" {
 
   repository_name = "${var.project_name}-frontend"
   repository_type = "private"
+  repository_force_delete = true
 
   repository_image_scan_on_push = true
 

@@ -28,7 +28,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-frontend
+        ECR_REPOSITORY: sanditel-frontend
         IMAGE_TAG: ${{ github.sha }}
       run: |
         cd frontend

@@ -1,6 +1,5 @@
-name: Build and Push Backend to ECR
+name: Build and Push Frontend to ECR
 
-# Kapan pabrik ini nyala? Pas ada kodingan baru di-push ke folder "backend"
 on:
   push:
     branches: [ "main" ]

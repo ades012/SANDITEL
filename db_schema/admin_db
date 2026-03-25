@@ -1,0 +1,14 @@
+--admin_db
+
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    file_name VARCHAR(255) NOT NULL,
+    s3_key VARCHAR(510) UNIQUE NOT NULL, -- Path asli di S3
+    file_type VARCHAR(50), -- pdf, xlsx, docx
+    file_size BIGINT, -- bytes
+    uploaded_by UUID NOT NULL, -- User ID dari JWT
+    description TEXT,
+    tag VARCHAR(100), -- Misal 'Keuangan', 'HR', 'SOP'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

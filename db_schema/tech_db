@@ -1,0 +1,27 @@
+--tech_db
+
+CREATE TABLE assets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    hostname VARCHAR(100) NOT NULL,
+    ip_address INET UNIQUE, -- Pakai tipe INET biar dapet keunggulan validasi native Postgres
+    device_type VARCHAR(50), -- Router, Switch, Server, AP
+    model VARCHAR(100),
+    serial_number VARCHAR(100),
+    location VARCHAR(100), -- Nama Gedung, Lantai, No Rack
+    status VARCHAR(20), -- Operational, Maintenance, Retired
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Buat historical logs monitoring (Postgres bisa handle, tapi query latest state pake Redis)
+CREATE TABLE monitoring_logs (
+    id BIGSERIAL PRIMARY KEY,
+    asset_id UUID REFERENCES assets(id),
+    status VARCHAR(20), -- UP, DOWN, UNREACHABLE
+    ping_latency INTEGER, -- ms
+    packet_loss_percent DECIMAL(5,2),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_asset_status ON monitoring_logs(asset_id, timestamp DESC);

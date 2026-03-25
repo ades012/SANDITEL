@@ -1,0 +1,27 @@
+--auth_db
+
+CREATE TYPE portal_type AS ENUM ('warehouse_portal', 'admin_portal');
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL, -- 'warehouse_manager', 'warehouse_staff', 'tech_lead', 'network_eng', 'admin_doc'
+    assigned_portal portal_type NOT NULL -- Menentukan user role ini boleh login di portal mana
+);
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, -- Wajib Bcrypt/Argon2
+    role_id INTEGER REFERENCES roles(id),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed data dasar (contoh)
+INSERT INTO roles (name, assigned_portal) VALUES 
+('warehouse_manager', 'warehouse_portal'),
+('warehouse_staff', 'warehouse_portal'),
+('network_eng', 'admin_portal'),
+('admin_doc', 'admin_portal');

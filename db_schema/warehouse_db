@@ -1,0 +1,39 @@
+--warehouse_db
+
+CREATE TABLE vendors (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    contact_person VARCHAR(100),
+    phone VARCHAR(20),
+    address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sku VARCHAR(50) UNIQUE NOT NULL, -- Stock Keeping Unit
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    category VARCHAR(50),
+    vendor_id INTEGER REFERENCES vendors(id),
+    current_stock INTEGER DEFAULT 0 CHECK (current_stock >= 0),
+    unit VARCHAR(20) DEFAULT 'pcs', -- pcs, meters, box
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TYPE movement_type AS ENUM ('in_vendor', 'out_technical', 'out_damaged', 'adjustment');
+
+CREATE TABLE inventory_movements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    item_id UUID REFERENCES items(id),
+    type movement_type NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    reference_id VARCHAR(100), -- Misal No. PO Vendor atau ID Request dari Tech Team
+    user_id UUID NOT NULL, -- ID User (dari JWT) yang melakukan input
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index buat speed query tracking
+CREATE INDEX idx_item_movement ON inventory_movements(item_id);

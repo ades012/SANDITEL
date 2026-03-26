@@ -198,16 +198,6 @@ async function connectToWhatsApp() {
         }
     });
 
-    // Taruh di bawah fungsi connectToWhatsApp
-    setInterval(async () => {
-        const res = await ping.promise.probe('IP_PUBLIK_KANTOR_LU');
-        if (!res.alive) {
-            await sock.sendMessage(ALERT_GROUP, { 
-                text: `⚠️ *[AUTO-ALERT]*\nKoneksi ke Kantor terputus! ISP kemungkinan sedang bermasalah.` 
-            });
-        }
-    }, 300000); // Cek tiap 5 menit
-
     // Handle incoming messages untuk admin commands
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const message = messages[0];

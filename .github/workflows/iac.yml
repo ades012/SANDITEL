@@ -33,19 +33,16 @@ jobs:
         # uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        run: terraform init
+        run: tofu init
 
-      # Cuma jalan kalau lu milih 'plan'
       - name: Terraform Plan
         if: ${{ inputs.tf_action == 'plan' }}
-        run: terraform plan
+        run: tofu plan
 
-      # Cuma jalan kalau lu milih 'apply'
       - name: Terraform Apply
         if: ${{ inputs.tf_action == 'apply' }}
-        run: terraform apply -auto-approve
+        run: tofu apply -auto-approve
 
-      # Cuma jalan kalau lu milih 'destroy'
       - name: Terraform Destroy
         if: ${{ inputs.tf_action == 'destroy' }}
-        run: terraform destroy -auto-approve
+        run: tofu destroy -auto-approve

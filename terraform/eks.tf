@@ -15,6 +15,25 @@ module "eks" {
   enable_irsa                              = true
   enable_cluster_creator_admin_permissions = true
 
+  node_security_group_additional_rules = {
+    wireguard_outbound = {
+      description      = "Allow WireGuard outbound to Office"
+      protocol         = "udp"
+      from_port        = 51820
+      to_port          = 51820
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+    }
+    wireguard_inbound = {
+      description      = "Allow WireGuard inbound for handshake"
+      protocol         = "udp"
+      from_port        = 51820
+      to_port          = 51820
+      type             = "ingress"
+      cidr_blocks      = ["0.0.0.0/0"]
+    }
+  }
+
   eks_managed_node_groups = {
     worker_nodes = {
       min_size     = 1

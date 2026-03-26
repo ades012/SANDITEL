@@ -8,6 +8,7 @@ terraform/terraform.tfvars
 
 # Node & Next.js
 frontend/node_modules/
+dude/node_modules/
 frontend/.next/
 frontend/out/
 frontend/.env*

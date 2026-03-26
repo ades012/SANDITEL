@@ -162,28 +162,28 @@ async function connectToWhatsApp() {
                     }
                 }, 2000);
             }
-            setInterval(async () => {
-                if (!sock || !sock.user) return; 
+            // setInterval(async () => {
+            //     if (!sock || !sock.user) return; 
 
-                try {
-                    const ipKantor = '103.147.222.243'; 
-                    const res = await ping.promise.probe(ipKantor);
+            //     try {
+            //         const ipKantor = '103.147.222.243'; 
+            //         const res = await ping.promise.probe(ipKantor);
                     
-                    if (!res.alive && !isOfficeDown) {
-                        isOfficeDown = true;
-                        await sock.sendMessage(ALERT_GROUP, { 
-                            text: `🚨 *[OFFLINE ALERT]*\n\nKoneksi ke Kantor terputus!\nStatus: UNREACHABLE 🔴` 
-                        });
-                    } else if (res.alive && isOfficeDown) {
-                        isOfficeDown = false;
-                        await sock.sendMessage(ALERT_GROUP, { 
-                            text: `✅ *[RECOVERY]*\n\nKoneksi ke Kantor sudah kembali normal.\nStatus: ONLINE 🟢` 
-                        });
-                    }
-                } catch (err) {
-                    console.error('Ping Error:', err);
-                }
-            }, 300000);
+            //         if (!res.alive && !isOfficeDown) {
+            //             isOfficeDown = true;
+            //             await sock.sendMessage(ALERT_GROUP, { 
+            //                 text: `🚨 *[OFFLINE ALERT]*\n\nKoneksi ke Kantor terputus!\nStatus: UNREACHABLE 🔴` 
+            //             });
+            //         } else if (res.alive && isOfficeDown) {
+            //             isOfficeDown = false;
+            //             await sock.sendMessage(ALERT_GROUP, { 
+            //                 text: `✅ *[RECOVERY]*\n\nKoneksi ke Kantor sudah kembali normal.\nStatus: ONLINE 🟢` 
+            //             });
+            //         }
+            //     } catch (err) {
+            //         console.error('Ping Error:', err);
+            //     }
+            // }, 300000);
         
         }
         

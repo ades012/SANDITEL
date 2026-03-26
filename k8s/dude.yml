@@ -14,31 +14,31 @@ spec:
     spec:
       containers:
       - name: dude-bot
-        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:fbda2dc
+        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:b61e0d6
         ports:
         - containerPort: 3000
         env:
         - name: PORT
           value: "3000"
-      - name: wireguard
-        image: linuxserver/wireguard
-        env:
-        - name: PUID
-          value: "1000"
-        - name: PGID
-          value: "1000"
-        securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-        volumeMounts:
-        - name: wg-config
-          mountPath: /config
+      # - name: wireguard
+      #   image: linuxserver/wireguard
+      #   env:
+      #   - name: PUID
+      #     value: "1000"
+      #   - name: PGID
+      #     value: "1000"
+      #   securityContext:
+      #     capabilities:
+      #       add:
+      #       - NET_ADMIN
+      #   volumeMounts:
+      #   - name: wg-config
+      #     mountPath: /config
       
-      volumes:
-      - name: wg-config
-        secret:
-          secretName: wg-config
+      # volumes:
+      # - name: wg-config
+      #   secret:
+      #     secretName: wg-config
 ---
 apiVersion: v1
 kind: Service

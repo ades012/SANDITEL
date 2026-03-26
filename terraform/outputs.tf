@@ -25,7 +25,7 @@ output "ecr_frontend_url" {
 
 output "ecr_dude_url" {
   description = "URL Registry push frontend"
-  value = module.ecr_dude_bot.repository_url
+  value = module.dude_bot.repository_url
 }
 
 output "rds_endpoint" {

@@ -247,7 +247,7 @@ async function connectToWhatsApp() {
                         break;
                     
                     case 'cek-kantor':
-                        const ipKantor = '103.147.222.243';
+                        const ipKantor = '10.11.255.5';
                         const res = await ping.promise.probe(ipKantor);
                         
                         if (res.alive) {

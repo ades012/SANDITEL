@@ -1,33 +1,38 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"os"
+	"auth-service/internal/delivery/http"
+	"auth-service/internal/domain"
+	"auth-service/internal/repository"
+	"auth-service/internal/usecase"
+	"log"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
-	// Endpoint API utama
-	http.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "Halo dari Backend Divisi Sanditel! 🚀",
-			"status":  "success",
-		})
-	})
-
-	// Endpoint Healthcheck (Wajib buat livenessProbe K8s)
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "OK")
-	})
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	// 1. Connect ke DB (Nanti ganti string ini pakai environment variable)
+	dsn := "host=localhost user=postgres password=root dbname=auth_db port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
 	}
 
-	fmt.Println("Backend Sanditel jalan di port", port)
-	http.ListenAndServe(":"+port, nil)
+	// Auto-migrate schema (Buat test awal, di production mending pakai migration tools)
+	db.AutoMigrate(&domain.Role{}, &domain.User{})
+
+	// 2. Setup Layer
+	repo := repository.NewAuthRepository(db)
+	// Hardcode JWT secret buat sekarang. Wajib ganti pakai env.
+	usecaseLayer := usecase.NewAuthUsecase(repo, "SUPER_SECRET_KEY_123") 
+
+	// 3. Setup Router Gin
+	r := gin.Default()
+	http.NewAuthHandler(r, usecaseLayer)
+
+	// 4. Jalankan Server
+	log.Println("Auth Service running on port 8080...")
+	r.Run(":8080")
 }

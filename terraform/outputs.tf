@@ -23,6 +23,11 @@ output "ecr_frontend_url" {
   value = module.ecr_frontend.repository_url
 }
 
+output "ecr_dude_url" {
+  description = "URL Registry push frontend"
+  value = module.ecr_dude_bot.repository_url
+}
+
 output "rds_endpoint" {
   description = "Endpoint database for backend"
   value = module.db.db_instance_endpoint

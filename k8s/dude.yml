@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: dude-bot
-        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:a0804e6
+        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:fbda2dc
         ports:
         - containerPort: 3000
         env:

@@ -1,0 +1,51 @@
+name: "Terraform / OpenTofu Manual Control"
+
+# Cuma bisa di-trigger manual lewat UI GitHub
+on:
+  workflow_dispatch:
+    inputs:
+      tf_action:
+        description: 'Pilih eksekusi Terraform:'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  infrastructure:
+    name: "Terraform ${{ inputs.tf_action }}"
+    runs-on: ubuntu-latest
+    
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: "ap-southeast-1"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: opentofu/setup-opentofu@v1 
+        # uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      # Cuma jalan kalau lu milih 'plan'
+      - name: Terraform Plan
+        if: ${{ inputs.tf_action == 'plan' }}
+        run: terraform plan
+
+      # Cuma jalan kalau lu milih 'apply'
+      - name: Terraform Apply
+        if: ${{ inputs.tf_action == 'apply' }}
+        run: terraform apply -auto-approve
+
+      # Cuma jalan kalau lu milih 'destroy'
+      - name: Terraform Destroy
+        if: ${{ inputs.tf_action == 'destroy' }}
+        run: terraform destroy -auto-approve

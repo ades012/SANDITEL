@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dude-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dude-bot
+  template:
+    metadata:
+      labels:
+        app: dude-bot
+    spec:
+      containers:
+      - name: dude-bot
+        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:5cbd4f5
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dude-service
+spec:
+  selector:
+    app: dude-bot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer 

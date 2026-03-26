@@ -3,12 +3,14 @@ import makeWASocket, { useMultiFileAuthState, DisconnectReason, fetchLatestBaile
 import express from 'express';
 import qrcode from 'qrcode-terminal';
 import pino from 'pino';
+import ping from 'ping';
 
 const app = express();
 app.use(express.json());
 
 let sock = null;
 let welcomeSent = false;
+let isOfficeDown = false;
 // const ALERT_GROUP = '120363023559262906@g.us'; // Group untuk alerts
 const ALERT_GROUP = '6281293709447-1562291997@g.us';
 
@@ -116,7 +118,7 @@ const unifiService = new UniFiAlertService();
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState("auth");
     const { version } = await fetchLatestBaileysVersion();
-
+    
     sock = makeWASocket({
         auth: state,
         version,
@@ -160,6 +162,29 @@ async function connectToWhatsApp() {
                     }
                 }, 2000);
             }
+            setInterval(async () => {
+                if (!sock || !sock.user) return; 
+
+                try {
+                    const ipKantor = '103.147.222.243'; 
+                    const res = await ping.promise.probe(ipKantor);
+                    
+                    if (!res.alive && !isOfficeDown) {
+                        isOfficeDown = true;
+                        await sock.sendMessage(ALERT_GROUP, { 
+                            text: `🚨 *[OFFLINE ALERT]*\n\nKoneksi ke Kantor terputus!\nStatus: UNREACHABLE 🔴` 
+                        });
+                    } else if (res.alive && isOfficeDown) {
+                        isOfficeDown = false;
+                        await sock.sendMessage(ALERT_GROUP, { 
+                            text: `✅ *[RECOVERY]*\n\nKoneksi ke Kantor sudah kembali normal.\nStatus: ONLINE 🟢` 
+                        });
+                    }
+                } catch (err) {
+                    console.error('Ping Error:', err);
+                }
+            }, 300000);
+        
         }
         
         if (connection === 'close') {
@@ -172,6 +197,16 @@ async function connectToWhatsApp() {
             }
         }
     });
+
+    // Taruh di bawah fungsi connectToWhatsApp
+    setInterval(async () => {
+        const res = await ping.promise.probe('IP_PUBLIK_KANTOR_LU');
+        if (!res.alive) {
+            await sock.sendMessage(ALERT_GROUP, { 
+                text: `⚠️ *[AUTO-ALERT]*\nKoneksi ke Kantor terputus! ISP kemungkinan sedang bermasalah.` 
+            });
+        }
+    }, 300000); // Cek tiap 5 menit
 
     // Handle incoming messages untuk admin commands
     sock.ev.on('messages.upsert', async ({ messages }) => {
@@ -209,6 +244,21 @@ async function connectToWhatsApp() {
                         await sock.sendMessage(jid, {
                             text: '🌐 *[NetBox IPAM]*\nSinkronisasi source of truth berhasil. Alokasi IP untuk service Unifi webhook aman.'
                         });
+                        break;
+                    
+                    case 'cek-kantor':
+                        const ipKantor = '103.147.222.243';
+                        const res = await ping.promise.probe(ipKantor);
+                        
+                        if (res.alive) {
+                            await sock.sendMessage(jid, { 
+                                text: `✅ *[Koneksi Kantor]*\nStatus: ONLINE\nLatency: ${res.time}ms\nISP: Aman terkendali.` 
+                            });
+                        } else {
+                            await sock.sendMessage(jid, { 
+                                text: `🔴 *[KONEKSI KANTOR MATI]*\nStatus: UNREACHABLE\nSegera cek power atau hubungi ISP!` 
+                            });
+                        }
                         break;
                             
                     case 'testalert':

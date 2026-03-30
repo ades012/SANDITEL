@@ -52,8 +52,9 @@ jobs:
           
       # 2. Commit dan Push perubahan YAML itu kembali ke GitHub
       - name: Commit and push changes
+        working-directory: .
         env:
-          secret.GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'

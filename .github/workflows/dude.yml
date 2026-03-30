@@ -48,10 +48,9 @@ jobs:
           ECR_REPOSITORY: sanditel-dude
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Asumsinya lu punya folder 'k8s' yang isinya file deployment.yml
-          cd k8s
+          TARGET_FILE=$(find . -name "dude.yml" | head -n 1)
           # Kita pakai perintah 'sed' buat nge-replace text image tag secara otomatis
-          sed -i "s|image: $ECR_REGISTRY/$ECR_REPOSITORY:.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" dude.yml
+          sed -i "s|image: $ECR_REGISTRY/$ECR_REPOSITORY:.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" $TARGET_FILE
           
       # 2. Commit dan Push perubahan YAML itu kembali ke GitHub
       - name: Commit and push changes

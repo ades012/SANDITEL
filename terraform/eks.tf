@@ -40,7 +40,7 @@ module "eks" {
       max_size     = 3
       desired_size = 2
 
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.micro"]
       ami_type       = "AL2_x86_64"
     }
   }

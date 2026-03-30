@@ -46,7 +46,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: sanditel-dude
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ steps.vars.outputs.sha_short }}
         run: |
           sed -i "s|image: $ECR_REGISTRY/$ECR_REPOSITORY:.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" ../k8s/dude.yml
           
@@ -59,5 +59,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add k8s/dude.yml
-          git commit -m "chore: update dude image tag to ${{ github.sha }}"
+          git commit -m "chore: update dude image tag to ${{ steps.vars.outputs.sha_short }}"
           git push origin main

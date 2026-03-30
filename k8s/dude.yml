@@ -12,6 +12,8 @@ spec:
       labels:
         app: dude-bot
     spec:
+      imagePullSecrets:
+      - name: ecr-registry-secret
       containers:
       - name: dude-bot
         image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:8dd8e5fc14f1ef609539fa02f953b20f54a364b0

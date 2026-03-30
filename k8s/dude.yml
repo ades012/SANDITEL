@@ -16,7 +16,7 @@ spec:
       - name: ecr-registry-secret
       containers:
       - name: dude-bot
-        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:5dcefec5574ccc375553c5a7d3854240642c9d4e
+        image: 509342715088.dkr.ecr.ap-southeast-1.amazonaws.com/sanditel-dude:003cc4a
         ports:
         - containerPort: 3000
         env:

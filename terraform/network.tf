@@ -7,7 +7,7 @@ module "vpc" {
 
     azs             = ["${var.aws_region}a", "${var.aws_region}b"]
     private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
-    public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+    public_subnets  = ["10.0.100.0/24", "10.0.100.0/24"]
 
     create_igw              = true
     map_public_ip_on_launch = true
